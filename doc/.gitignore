@@ -1,3 +1,10 @@
-alexandria
 include
 
+alexandria.aux
+alexandria.fn
+alexandria.fns
+alexandria.log
+alexandria.pdf
+alexandria.toc
+alexandria.tp
+alexandria.tps
