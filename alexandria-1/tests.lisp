@@ -2045,3 +2045,109 @@
            (not aux)
            (eq t keyp)))
   t)
+
+;; Thread first tests
+
+(deftest thread-first.no-form
+    (values
+     (equal (macroexpand '(thread-first 5))
+            5)
+     (equal (macroexpand '(thread-first (+ 1 2)))
+            '(+ 1 2)))
+  t
+  t)
+
+
+(deftest thread-first.function-names-are-threaded
+    (values
+     (equal (macroexpand '(thread-first 5 -))
+            '(- 5))
+     (equal (macroexpand '(thread-first (+ 1 2) -))
+            '(- (+ 1 2))))
+  t
+  t)
+
+(deftest thread-first.list-promotion
+    (macroexpand '(thread-first
+                   5
+                   (+ 20)
+                   (/ 25)
+                   -
+                   (+ 40)))
+  (+ (- (/ (+ 5 20) 25)) 40)
+  t)
+
+(deftest thread-first.multiple-args
+    (macroexpand '(thread-first
+                   "this-is-a-string"
+                   (subseq 0 4)))
+  (subseq "this-is-a-string" 0 4)
+  t)
+
+(deftest thread-first.several-examples
+    (values
+     (equal (thread-first (+ 40 2)) 42)
+     (equal (thread-first
+             5
+             (+ 20)
+             (/ 25)
+             -
+             (+ 40)) 39)
+     (equal (thread-first
+             "this-is-a-string"
+             (subseq 4 5)
+             (string-trim  "--------good"))
+            "good"))
+  t
+  t
+  t)
+
+;; Thread last tests
+
+(deftest thread-last.no-forms
+    (values
+     (equal (macroexpand '(thread-last 5)) 5)
+     (equal (macroexpand '(thread-last (+ 1 2))) '(+ 1 2)))
+  t
+  t)
+
+(deftest thread-last.function-names-are-threaded
+    (values (equal (macroexpand
+                    '(thread-last 5
+                      -))
+                   '(- 5))
+            (equal (macroexpand
+                    '(thread-last (+ 1 2)
+                      -))
+                   '(- (+ 1 2))))
+  t
+  t)
+
+(deftest thread-last.lisp-promotion
+    (macroexpand '(thread-last
+                   5
+                   (+ 20)
+                   (/ 25)
+                   -
+                   (+ 40)))
+  (+ 40 (- (/ 25 (+ 20 5))))
+  t)
+
+(deftest thread-last.several-examples
+    (values (equal (thread-last (+ 40 2)) 42)
+            (equal (thread-last
+                    5
+                    (+ 20)
+                    (/ 25)
+                    -
+                    (+ 40))
+                   39)
+            (equal (thread-last
+                    (list 1 -2 3 -4 5)
+                    (mapcar #'abs)
+                    (reduce #'+)
+                    (format nil "abs sum is: ~D"))
+                   "abs sum is: 15"))
+  t
+  t
+  t)

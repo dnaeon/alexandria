@@ -104,3 +104,48 @@ NIL."
   "Evaluates FIRST-FORM, then SECOND-FORM, and then FORMS. Yields as its value
 all the value returned by SECOND-FORM."
   `(progn ,first-form (multiple-value-prog1 ,second-form ,@forms)))
+
+(defun thread-iter (thread-first-p acc forms)
+  "Iterative implementation for `thread-iter'.
+
+The THREAD-FIRST-P decides where to thread the FORMS, accumulating in ACC."
+  (if forms
+      (thread-iter thread-first-p
+                   (let ((form (car forms)))
+                     (if (listp form)
+                         (if thread-first-p
+                             (apply #'list (car form) acc (cdr form))
+                             (append form (cons acc nil)))
+                         (list form acc)))
+                   (cdr forms))
+      acc))
+
+(defmacro thread-first (&rest forms)
+  "Thread FORMS elements as the first argument of their successor.
+Example:
+    (thread-first
+      5
+      (+ 20)
+      (/ 25)
+      -
+      (+ 40))
+Is equivalent to:
+    (+ (- (/ (+ 5 20) 25)) 40)
+Note how the single `-' got converted into a list before
+threading."
+  (thread-iter t (car forms) (cdr forms)))
+
+(defmacro thread-last (&rest forms)
+  "Thread FORMS elements as the last argument of their successor.
+Example:
+    (thread-last
+      5
+      (+ 20)
+      (/ 25)
+      -
+      (+ 40))
+Is equivalent to:
+    (+ 40 (- (/ 25 (+ 20 5))))
+Note how the single `-' got converted into a list before
+threading."
+  (thread-iter nil (car forms) (cdr forms)))

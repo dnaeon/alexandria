@@ -20,6 +20,8 @@
    #:cswitch
    #:eswitch
    #:switch
+   #:thread-first
+   #:thread-last
    ;; -- problem free? --
    #:multiple-value-prog2
    #:nth-value-or
