@@ -5,4 +5,6 @@
   (:lock t)
   (:export .
     #. (let (res) (do-external-symbols (sym :alexandria.1.0.0) (push sym res)) res)
+
+    #:delete-from-plist*
    ))
